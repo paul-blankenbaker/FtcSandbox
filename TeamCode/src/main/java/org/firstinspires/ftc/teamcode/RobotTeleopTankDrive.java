@@ -55,11 +55,16 @@ public class RobotTeleopTankDrive extends LinearOpMode {
     public DcMotor  frontLeftDrive   = null;
     public DcMotor  frontRightDrive  = null;
 
+    @Override
+    public void runOpMode() throws InterruptedException {
+
+    }
+
     /*
      * Code to run ONCE when the driver hits INIT
      */
-    @Override
-    public void init() {
+    //@Override
+    public void initTODO() {
         // Define and Initialize Motors
         // Control hub 0 & 1
         backLeftDrive  = hardwareMap.get(DcMotor.class, "bl");
@@ -84,26 +89,12 @@ public class RobotTeleopTankDrive extends LinearOpMode {
         telemetry.addData(">", "Robot Ready.  Press START.");    //
     }
 
-    /*
-     * Code to run REPEATEDLY after the driver hits INIT, but before they hit START
-     */
-    @Override
-    public void init_loop() {
-        read_sensors();
-    }
-
-    /*
-     * Code to run ONCE when the driver hits START
-     */
-    @Override
-    public void start() {
-    }
 
     /*
      * Code to run REPEATEDLY after the driver hits START but before they hit STOP
      */
-    @Override
-    public void loop() {
+    //@Override
+    public void loopTODO() {
         double rotation;
         double fowardBackward;
 
@@ -135,12 +126,5 @@ public class RobotTeleopTankDrive extends LinearOpMode {
 
     private void read_sensors() {
         // Place holder for when we start reading back sensors
-    }
-
-    /*
-     * Code to run ONCE after the driver hits STOP
-     */
-    @Override
-    public void stop() {
     }
 }

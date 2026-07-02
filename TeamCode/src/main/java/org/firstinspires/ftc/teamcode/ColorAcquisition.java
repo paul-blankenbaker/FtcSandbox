@@ -42,8 +42,10 @@ import com.qualcomm.robotcore.hardware.SwitchableLight;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.internal.files.DataLogger;
+import org.firstinspires.ftc.teamcode.stats.StatisticsAccumulator;
 
 import java.io.IOException;
+import java.util.Locale;
 
 /*
  * This OpMode shows how to use a color sensor in a generic
@@ -89,6 +91,8 @@ public class ColorAcquisition extends LinearOpMode {
     View relativeLayout;
     private boolean dataLoggingEnabled;
     private DataLogger dataLogger;
+    private StatisticsAccumulator distanceStats;
+    private StatisticsAccumulator hueStats;
 
     /*
      * The runOpMode() method is the root of this OpMode, as it is in all LinearOpModes.
@@ -172,6 +176,9 @@ public class ColorAcquisition extends LinearOpMode {
             } else if (gamepad1.b && gain > 1) { // A gain of less than 1 will make the values smaller, which is not helpful.
                 gain -= 0.005;
             }
+            if (gamepad1.yWasPressed()) {
+                startDataLogging();
+            }
 
             // Show the gain value via telemetry
             telemetry.addData("Gain", gain);
@@ -216,14 +223,16 @@ public class ColorAcquisition extends LinearOpMode {
                     .addData("Value", "%.3f", hsvValues[2]);
             telemetry.addData("Alpha", "%.3f", colors.alpha);
 
-            logData(gain, colors, hsvValues);
 
             /* If this color sensor also has a distance sensor, display the measured distance.
              * Note that the reported distance is only useful at very close range, and is impacted by
              * ambient light and surface reflectivity. */
+            double distance = 0;
             if (colorSensor instanceof DistanceSensor) {
-                telemetry.addData("Distance (cm)", "%.3f", ((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM));
+                distance = ((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM);
+                telemetry.addData("Distance (cm)", "%.3f", distance);
             }
+            logData(gain, colors, hsvValues, distance);
 
             telemetry.update();
 
@@ -240,7 +249,9 @@ public class ColorAcquisition extends LinearOpMode {
         try {
             String fileName = DataLogger.createFileName("color_data.csv");
             dataLogger = new DataLogger(fileName);
-            dataLogger.addHeaderLine("Gain", "R", "G", "B");
+            dataLogger.addHeaderLine("Gain", "R", "G", "B", "Hue", "Saturation", "Value");
+            distanceStats = new StatisticsAccumulator();
+            hueStats = new StatisticsAccumulator();
             dataLoggingEnabled = true;
             telemetry.addData("DataLogging", fileName);
         } catch (IOException e) {
@@ -248,18 +259,36 @@ public class ColorAcquisition extends LinearOpMode {
         }
     }
 
-    private void logData(float gain, NormalizedRGBA colors, float[] hsvValues) {
+    private void logData(float gain, NormalizedRGBA colors, float[] hsvValues, double distance) {
+        if (hueStats != null) {
+            addStats("Hue", hueStats);
+            addStats("Distance", distanceStats);
+            telemetry.addData("Count", distanceStats.count());
+        }
+
         if (!dataLoggingEnabled) {
             return;
         }
         try {
-            dataLogger.addDataLine(gain, colors.red, colors.green, colors.blue);
+            dataLogger.addDataLine(gain, colors.red, colors.green, colors.blue, hsvValues[0], hsvValues[1], hsvValues[2]);
+            distanceStats.addValue(distance);
+            hueStats.addValue(hsvValues[0]);
+            if (distanceStats.count() >= 100) {
+                stopDataLogging();
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void stopdDatalogging() {
+    private void addStats(String label, StatisticsAccumulator Stats) {
+        telemetry.addData(label + " Avg", Stats.average());
+        telemetry.addData(label + "Min", Stats.min());
+        telemetry.addData(label + "Max", Stats.max());
+        telemetry.addData(label+"Standard Deviation", Stats.standardDeviation());
+    }
+
+    public void stopDataLogging() {
         dataLoggingEnabled = false;
         dataLogger.close();
     }
