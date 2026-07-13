@@ -12,7 +12,7 @@ public class StatisticsAccumulator {
         sum = sum + valueToAdd;
         min = Math.min(min, valueToAdd);
         max = Math.max(max, valueToAdd);
-        sum2 = valueToAdd * valueToAdd;
+        sum2 = sum2 + valueToAdd * valueToAdd;
     }
 
     public long count() {
@@ -32,14 +32,15 @@ public class StatisticsAccumulator {
     }
 
     public double standardDeviation() {
-        return Math.sqrt(varience());
+        return Math.sqrt(variance());
     }
 
-    public double varience() {
+    public double variance() {
         if (count < 2) {
             return 0;
         }
-        double variance = (sum2 - (sum * sum) / (double) count) / (count - 1);
-        return variance;
+        else {
+            return (sum2 - (sum * sum) / (double) count) / (count - 1);
+        }
     }
 }
