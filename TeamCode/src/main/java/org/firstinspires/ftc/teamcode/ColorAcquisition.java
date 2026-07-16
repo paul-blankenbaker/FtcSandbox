@@ -45,7 +45,6 @@ import org.firstinspires.ftc.robotcore.internal.files.DataLogger;
 import org.firstinspires.ftc.teamcode.stats.StatisticsAccumulator;
 
 import java.io.IOException;
-import java.util.Locale;
 
 /*
  * This OpMode shows how to use a color sensor in a generic
@@ -93,6 +92,7 @@ public class ColorAcquisition extends LinearOpMode {
     private DataLogger dataLogger;
     private StatisticsAccumulator distanceStats;
     private StatisticsAccumulator hueStats;
+    private String dataLoggerStatus = "Idle";
 
     /*
      * The runOpMode() method is the root of this OpMode, as it is in all LinearOpModes.
@@ -157,7 +157,7 @@ public class ColorAcquisition extends LinearOpMode {
         // If possible, turn the light on in the beginning (it might already be on anyway,
         // we just make sure it is if we can).
         if (colorSensor instanceof SwitchableLight) {
-            ((SwitchableLight) colorSensor).enableLight(true);
+            ((SwitchableLight) colorSensor).enableLight(false);
         }
 
         // Wait for the start button to be pressed.
@@ -165,6 +165,11 @@ public class ColorAcquisition extends LinearOpMode {
 
         // Loop until we are asked to stop
         while (opModeIsActive()) {
+            try {
+                Thread.sleep(125);
+            } catch (InterruptedException e) {
+                telemetry.addData("Exception", e.getMessage());
+            }
             // Explain basic gain information via telemetry
             telemetry.addLine("Hold the A button on gamepad 1 to increase gain, or B to decrease it.\n");
             telemetry.addLine("Higher gain values mean that the sensor will report larger numbers for Red, Green, and Blue, and Value\n");
@@ -193,13 +198,13 @@ public class ColorAcquisition extends LinearOpMode {
             // If the button state is different than what it was, then act
             //if (xButtonCurrentlyPressed != xButtonPreviouslyPressed) {
             // If the button is (now) down, then toggle the light
-            //if (xButtonCurrentlyPressed) {
-            if (xToggleLight && colorSensor instanceof SwitchableLight) {
+            if (colorSensor instanceof SwitchableLight) {
                 SwitchableLight light = (SwitchableLight) colorSensor;
-                light.enableLight(!light.isLightOn());
+                if (xToggleLight) {
+                    light.enableLight(!light.isLightOn());
+                }
+                telemetry.addData("Light", light.isLightOn());
             }
-            //}
-            //}
             xButtonPreviouslyPressed = xToggleLight;
 
             // Get the normalized colors from the sensor
@@ -233,6 +238,7 @@ public class ColorAcquisition extends LinearOpMode {
                 telemetry.addData("Distance (cm)", "%.3f", distance);
             }
             logData(gain, colors, hsvValues, distance);
+            telemetry.addData("DataLogging", dataLoggerStatus);
 
             telemetry.update();
 
@@ -249,13 +255,13 @@ public class ColorAcquisition extends LinearOpMode {
         try {
             String fileName = DataLogger.createFileName("color_data.csv");
             dataLogger = new DataLogger(fileName);
-            dataLogger.addHeaderLine("Gain", "R", "G", "B", "Hue", "Saturation", "Value");
+            dataLogger.addHeaderLine("Gain", "R", "G", "B", "Hue", "Saturation", "Value", "Distance");
             distanceStats = new StatisticsAccumulator();
             hueStats = new StatisticsAccumulator();
             dataLoggingEnabled = true;
-            telemetry.addData("DataLogging", fileName);
+            dataLoggerStatus = "Logging to: " + fileName;
         } catch (IOException e) {
-            telemetry.addData("DataLogging", "FAILED");
+            dataLoggerStatus = "Failed: " + e.getMessage();
         }
     }
 
@@ -270,14 +276,15 @@ public class ColorAcquisition extends LinearOpMode {
             return;
         }
         try {
-            dataLogger.addDataLine(gain, colors.red, colors.green, colors.blue, hsvValues[0], hsvValues[1], hsvValues[2]);
+            dataLogger.addDataLine(gain, colors.red, colors.green, colors.blue,
+                    hsvValues[0], hsvValues[1], hsvValues[2], distance);
             distanceStats.addValue(distance);
             hueStats.addValue(hsvValues[0]);
             if (distanceStats.count() >= 100) {
                 stopDataLogging();
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            dataLoggerStatus = "Failed to add row: " + e.getMessage();
         }
     }
 
@@ -285,11 +292,12 @@ public class ColorAcquisition extends LinearOpMode {
         telemetry.addData(label + " Avg", Stats.average());
         telemetry.addData(label + "Min", Stats.min());
         telemetry.addData(label + "Max", Stats.max());
-        telemetry.addData(label+"Standard Deviation", Stats.standardDeviation());
+        telemetry.addData(label + "Standard Deviation", Stats.standardDeviation());
     }
 
     public void stopDataLogging() {
         dataLoggingEnabled = false;
         dataLogger.close();
+        dataLoggerStatus = "Closed/Done";
     }
 }
