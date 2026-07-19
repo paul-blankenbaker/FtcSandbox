@@ -67,4 +67,11 @@ public class StopWatch {
     public boolean isRunning() {
         return lastStart != -1;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%.3f", check());
+    }
+
+
 }
