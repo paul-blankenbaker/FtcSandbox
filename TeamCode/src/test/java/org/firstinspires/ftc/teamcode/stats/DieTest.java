@@ -5,6 +5,26 @@ import junit.framework.TestCase;
 public class DieTest extends TestCase {
 
     public void testRoll() {
+        Die die = new Die(1);
+        int value = die.roll();
+        assertEquals(1, value);
+
+        die = new Die(10);
+        value = die.roll();
+        assertTrue(value >= 1);
+        assertTrue(value <= 10);
+    }
+
+    public void testString() {
+        Die die = new Die(1);
+        int value = die.roll();
+        assertEquals("The die rolled a 1.", die.toString());
+
+        die = new Die(10);
+        value = die.roll();
+        String firstcheck = die.toString();
+        String secondcheck = die.toString();
+        assertEquals(firstcheck, secondcheck);
     }
 
 

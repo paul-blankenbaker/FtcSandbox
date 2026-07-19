@@ -9,8 +9,8 @@ public class Die {
 
     public Die(int numSides) {
         // Enforce that the number of sides must be greater than 3
-        if (numSides <= 3) {
-            throw new IllegalArgumentException("A die must have more than 3 sides.");
+        if (numSides <= 0) {
+            throw new IllegalArgumentException("A die must have more than 0 sides.");
         }
         this.numSides = numSides;
         this.random = new Random();
