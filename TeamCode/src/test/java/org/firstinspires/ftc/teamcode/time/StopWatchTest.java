@@ -48,4 +48,11 @@ public class StopWatchTest extends TestCase {
         instance.reset();
         assertEquals(0.0, instance.check(), Double.MIN_VALUE);
     }
+
+    public void testString() {
+        StopWatch instance = new StopWatch();
+        assertEquals("0.000",instance.toString());
+
+    }
+
 }
