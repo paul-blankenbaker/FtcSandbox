@@ -59,7 +59,7 @@ public class RobotTeleopTankDrive extends OpMode {
        }
 
 
-        setTankDrivePower(leftPower, rightPower);
+        setTankDrivePower(leftPower * 0.7, rightPower * 0.7);
     }
 
     private void setTankDrivePower(double leftPower, double rightPower) {
