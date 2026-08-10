@@ -92,6 +92,8 @@ public class ColorAcquisition extends LinearOpMode {
     private DataLogger dataLogger;
     private StatisticsAccumulator distanceStats;
     private StatisticsAccumulator hueStats;
+
+    private StatisticsAccumulator saturationStats;
     private String dataLoggerStatus = "Idle";
 
     /*
@@ -136,7 +138,7 @@ public class ColorAcquisition extends LinearOpMode {
         // colors will report at or near 1, and you won't be able to determine what color you are
         // actually looking at. For this reason, it's better to err on the side of a lower gain
         // (but always greater than  or equal to 1).
-        float gain = 2;
+        float gain = 8;
 
         // Once per loop, we will update this hsvValues array. The first element (0) will contain the
         // hue, the second element (1) will contain the saturation, and the third element (2) will
@@ -177,9 +179,9 @@ public class ColorAcquisition extends LinearOpMode {
             // Update the gain value if either of the A or B gamepad buttons is being held
             if (gamepad1.a) {
                 // Only increase the gain by a small amount, since this loop will occur multiple times per second.
-                gain += 0.005;
+                gain += 0.5;
             } else if (gamepad1.b && gain > 1) { // A gain of less than 1 will make the values smaller, which is not helpful.
-                gain -= 0.005;
+                gain -= 0.5;
             }
             if (gamepad1.yWasPressed()) {
                 startDataLogging();
@@ -258,6 +260,7 @@ public class ColorAcquisition extends LinearOpMode {
             dataLogger.addHeaderLine("Gain", "R", "G", "B", "Hue", "Saturation", "Value", "Distance");
             distanceStats = new StatisticsAccumulator();
             hueStats = new StatisticsAccumulator();
+            saturationStats = new StatisticsAccumulator();
             dataLoggingEnabled = true;
             dataLoggerStatus = "Logging to: " + fileName;
         } catch (IOException e) {
@@ -269,6 +272,7 @@ public class ColorAcquisition extends LinearOpMode {
         if (hueStats != null) {
             addStats("Hue", hueStats);
             addStats("Distance", distanceStats);
+            addStats("Saturation", saturationStats);
             telemetry.addData("Count", distanceStats.count());
         }
 
@@ -280,6 +284,7 @@ public class ColorAcquisition extends LinearOpMode {
                     hsvValues[0], hsvValues[1], hsvValues[2], distance);
             distanceStats.addValue(distance);
             hueStats.addValue(hsvValues[0]);
+            saturationStats.addValue(hsvValues[1]);
             if (distanceStats.count() >= 100) {
                 stopDataLogging();
             }
