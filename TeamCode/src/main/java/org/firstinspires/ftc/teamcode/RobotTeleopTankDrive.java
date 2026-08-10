@@ -4,25 +4,38 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 
 
-@TeleOp(name="Car Drive", group="Robot")
+@TeleOp(name = "Car Drive", group = "Robot")
 public class RobotTeleopTankDrive extends OpMode {
     /* Declare OpMode members. */
-    public DcMotor  backLeftDrive   = null;
-    public DcMotor  backRightDrive   = null;
-    public DcMotor  frontLeftDrive   = null;
-    public DcMotor  frontRightDrive  = null;
+    public DcMotor backLeftDrive = null;
+    public DcMotor backRightDrive = null;
+    public DcMotor frontLeftDrive = null;
+    public DcMotor frontRightDrive = null;
 
     /*
      * Code to run ONCE when the driver hits INIT
      */
+
+    private Servo left_arm, right_arm;
+
+    private double rarm_pos, larm_pos;
+
+    private static double larm_home_pos = 0.725;
+    private static double larm_hover_pos = 0.54;
+
+
+    private static double rarm_home_pos = 0.497;
+    private static double rarm_hover_pos = 0.682;
+
     @Override
     public void init() {
         // Define and Initialize Motors
         // Control hub 0 & 1
-        backLeftDrive  = hardwareMap.get(DcMotor.class, "bl");
-        frontLeftDrive  = hardwareMap.get(DcMotor.class, "fl");
+        backLeftDrive = hardwareMap.get(DcMotor.class, "bl");
+        frontLeftDrive = hardwareMap.get(DcMotor.class, "fl");
         // Expansion hub 0 & 1
         backRightDrive = hardwareMap.get(DcMotor.class, "br");
         frontRightDrive = hardwareMap.get(DcMotor.class, "fr");
@@ -33,7 +46,15 @@ public class RobotTeleopTankDrive extends OpMode {
         frontLeftDrive.setDirection(DcMotor.Direction.FORWARD);
 
 
-        telemetry.addData(">", "Robot Ready.  Press START.");    //
+        telemetry.addData(">", "Robot Ready.  Press START.");
+
+        left_arm = hardwareMap.servo.get("leftArm");
+        right_arm = hardwareMap.servo.get("rightArm");
+
+        rarm_pos = rarm_home_pos;
+        larm_pos = larm_home_pos;
+
+
     }
 
 
@@ -51,15 +72,36 @@ public class RobotTeleopTankDrive extends OpMode {
         double leftPower = fowardBackward + rotation;
         double rightPower = fowardBackward - rotation;
 
-       double mag = Math.max(Math.abs(leftPower), Math.abs(rightPower));
-       if (mag > 1.0)
-       {
-           leftPower /= mag;
-           rightPower /= mag;
-       }
+        double mag = Math.max(Math.abs(leftPower), Math.abs(rightPower));
+        if (mag > 1.0) {
+            leftPower /= mag;
+            rightPower /= mag;
+        }
 
 
-        setTankDrivePower(leftPower, rightPower);
+        setTankDrivePower(leftPower * 0.7, rightPower * 0.7);
+       // updateArm();
+    }
+
+    private void updateArm() {
+
+        if (gamepad1.dpad_down) {
+
+            rarm_pos = rarm_home_pos;
+            larm_pos = larm_home_pos;
+
+        } else if (gamepad1.dpad_up) {
+
+            rarm_pos = rarm_hover_pos;
+            larm_pos = larm_hover_pos;
+
+        }
+        left_arm.setPosition(larm_pos);
+        right_arm.setPosition(rarm_pos);
+
+
+        telemetry.addData("left servo", left_arm.getPosition());
+        telemetry.addData("right servo", right_arm.getPosition());
     }
 
     private void setTankDrivePower(double leftPower, double rightPower) {
