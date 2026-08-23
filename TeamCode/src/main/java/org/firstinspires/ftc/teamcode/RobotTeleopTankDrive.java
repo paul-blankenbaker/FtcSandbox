@@ -14,6 +14,9 @@ public class RobotTeleopTankDrive extends OpMode {
     public DcMotor backLeftDrive = null;
     public DcMotor backRightDrive = null;
 
+    int backLeftStartPosition;
+    int backRightStartPosition;
+
     /*
      * Code to run ONCE when the driver hits INIT
 
@@ -22,7 +25,7 @@ public class RobotTeleopTankDrive extends OpMode {
 
     private double rarm_pos, larm_pos;
 
-    private static double larm_home_pos = 0.725;
+    private static double larm_home_pos = 0.725hbv
     private static double larm_hover_pos = 0.54;
 
 
@@ -38,9 +41,12 @@ public class RobotTeleopTankDrive extends OpMode {
         // Expansion hub 0 & 1
         backRightDrive = hardwareMap.get(DcMotor.class, "backRight");
 
-        backRightDrive.setDirection(DcMotor.Direction.FORWARD);
+        backRightDrive.setDirection(DcMotor.Direction.REVERSE);
 
-        backLeftDrive.setDirection(DcMotor.Direction.REVERSE);
+        backLeftDrive.setDirection(DcMotor.Direction.FORWARD);
+
+        backLeftStartPosition = backLeftDrive.getCurrentPosition();
+        backRightStartPosition = backRightDrive.getCurrentPosition();
 
 
 
@@ -61,11 +67,18 @@ public class RobotTeleopTankDrive extends OpMode {
         double rotation;
         double forwardBackward;
 
+        boolean b;
+
+        if (gamepad1.bWasPressed() == true) {
+            backLeftStartPosition = backLeftDrive.getCurrentPosition();
+            backRightStartPosition = backRightDrive.getCurrentPosition();
+        }
+
         //read_sensors();
 
         // Run wheels in tank mode (note: The joystick goes negative when pushed forward, so negate it)
         forwardBackward = -gamepad1.left_stick_y;
-        rotation = -gamepad1.right_stick_x;
+        rotation = gamepad1.right_stick_x;
 
         telemetry.addData("forwardBackward", forwardBackward);
         telemetry.addData("spinTurn", rotation);
@@ -117,8 +130,8 @@ public class RobotTeleopTankDrive extends OpMode {
         backLeftDrive.getCurrentPosition();
         backRightDrive.getCurrentPosition();
 
-        double leftPosition = backLeftDrive.getCurrentPosition();
-        double rightPosition = backRightDrive.getCurrentPosition();
+        double leftPosition = backLeftDrive.getCurrentPosition() - backLeftStartPosition;
+        double rightPosition = backRightDrive.getCurrentPosition() - backRightStartPosition;
 
         telemetry.addData("leftPower", leftPower);
         telemetry.addData("rightPower", rightPower);
