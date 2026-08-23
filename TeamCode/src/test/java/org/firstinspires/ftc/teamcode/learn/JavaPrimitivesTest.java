@@ -55,6 +55,17 @@ public class JavaPrimitivesTest {
         // PRO TIP: Local variables (inside a method) are NOT initialized and will cause a compiler error if used!
         assertEquals(0, myInt);
 
+        // Example of declaring a local variable that can only be accessed in this testIntPrimitives() method
+        int localInt;
+        // assertEquals(0, localInt); // This will cause a compiler error!
+        // A value must be assigned before it can be used!
+        localInt = myInt + 1;
+        assertEquals(1, localInt);
+
+        // you can initialize a local variable to a specific value
+        int localInt2 = 10;
+        assertEquals(10, localInt2);
+
         // 2. SETTING LITERAL VALUES
         // You can use underscores to make large numbers readable (like a comma)
         myInt = 2_000_000_000;
