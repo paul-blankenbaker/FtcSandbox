@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 
@@ -12,12 +13,10 @@ public class RobotTeleopTankDrive extends OpMode {
     /* Declare OpMode members. */
     public DcMotor backLeftDrive = null;
     public DcMotor backRightDrive = null;
-    public DcMotor frontLeftDrive = null;
-    public DcMotor frontRightDrive = null;
 
     /*
      * Code to run ONCE when the driver hits INIT
-     */
+
 
     private Servo left_arm, right_arm;
 
@@ -29,30 +28,29 @@ public class RobotTeleopTankDrive extends OpMode {
 
     private static double rarm_home_pos = 0.497;
     private static double rarm_hover_pos = 0.682;
-
+*/
     @Override
     public void init() {
         // Define and Initialize Motors
         // Control hub 0 & 1
-        backLeftDrive = hardwareMap.get(DcMotor.class, "bl");
-        frontLeftDrive = hardwareMap.get(DcMotor.class, "fl");
-        // Expansion hub 0 & 1
-        backRightDrive = hardwareMap.get(DcMotor.class, "br");
-        frontRightDrive = hardwareMap.get(DcMotor.class, "fr");
+        backLeftDrive = hardwareMap.get(DcMotor.class, "backLeft");
 
-        backRightDrive.setDirection(DcMotor.Direction.REVERSE);
-        frontRightDrive.setDirection(DcMotor.Direction.REVERSE);
-        backLeftDrive.setDirection(DcMotor.Direction.FORWARD);
-        frontLeftDrive.setDirection(DcMotor.Direction.FORWARD);
+        // Expansion hub 0 & 1
+        backRightDrive = hardwareMap.get(DcMotor.class, "backRight");
+
+        backRightDrive.setDirection(DcMotor.Direction.FORWARD);
+
+        backLeftDrive.setDirection(DcMotor.Direction.REVERSE);
+
 
 
         telemetry.addData(">", "Robot Ready.  Press START.");
 
-        left_arm = hardwareMap.servo.get("leftArm");
+        /*left_arm = hardwareMap.servo.get("leftArm");
         right_arm = hardwareMap.servo.get("rightArm");
 
         rarm_pos = rarm_home_pos;
-        larm_pos = larm_home_pos;
+        larm_pos = larm_home_pos;*/
 
 
     }
@@ -61,16 +59,19 @@ public class RobotTeleopTankDrive extends OpMode {
     @Override
     public void loop() {
         double rotation;
-        double fowardBackward;
+        double forwardBackward;
 
-        read_sensors();
+        //read_sensors();
 
         // Run wheels in tank mode (note: The joystick goes negative when pushed forward, so negate it)
-        fowardBackward = -gamepad1.left_stick_y;
-        rotation = gamepad1.right_stick_x;
+        forwardBackward = -gamepad1.left_stick_y;
+        rotation = -gamepad1.right_stick_x;
 
-        double leftPower = fowardBackward + rotation;
-        double rightPower = fowardBackward - rotation;
+        telemetry.addData("forwardBackward", forwardBackward);
+        telemetry.addData("spinTurn", rotation);
+
+        double leftPower = forwardBackward + rotation;
+        double rightPower = forwardBackward - rotation;
 
         double mag = Math.max(Math.abs(leftPower), Math.abs(rightPower));
         if (mag > 1.0) {
@@ -79,11 +80,11 @@ public class RobotTeleopTankDrive extends OpMode {
         }
 
 
-        setTankDrivePower(leftPower * 0.7, rightPower * 0.7);
+        setTankDrivePower(leftPower * 1, rightPower * 1L);
        // updateArm();
     }
 
-    private void updateArm() {
+   /* private void updateArm() {
 
         if (gamepad1.dpad_down) {
 
@@ -103,18 +104,26 @@ public class RobotTeleopTankDrive extends OpMode {
         telemetry.addData("left servo", left_arm.getPosition());
         telemetry.addData("right servo", right_arm.getPosition());
     }
-
+*/
     private void setTankDrivePower(double leftPower, double rightPower) {
         leftPower = Math.min(1.0, Math.max(-1.0, leftPower));
         backLeftDrive.setPower(leftPower);
-        frontLeftDrive.setPower(leftPower);
+
 
         rightPower = Math.min(1.0, Math.max(-1.0, rightPower));
         backRightDrive.setPower(rightPower);
-        frontRightDrive.setPower(rightPower);
+
+
+        backLeftDrive.getCurrentPosition();
+        backRightDrive.getCurrentPosition();
+
+        double leftPosition = backLeftDrive.getCurrentPosition();
+        double rightPosition = backRightDrive.getCurrentPosition();
 
         telemetry.addData("leftPower", leftPower);
         telemetry.addData("rightPower", rightPower);
+        telemetry.addData("left position", leftPosition);
+        telemetry.addData("right position", rightPosition);
     }
 
     private void read_sensors() {
