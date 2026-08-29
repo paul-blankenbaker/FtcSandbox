@@ -60,11 +60,16 @@ public class RobotTeleopTankDrive extends OpMode {
 
 
     }
+    // This is inches over the current position of the robot
+    final static double POS_TO_IN = 0.021295299*1.04;
+
+
+
 
 
     @Override
     public void loop() {
-        double rotation;
+               double rotation;
         double forwardBackward;
 
         boolean b;
@@ -73,6 +78,7 @@ public class RobotTeleopTankDrive extends OpMode {
             backLeftStartPosition = backLeftDrive.getCurrentPosition();
             backRightStartPosition = backRightDrive.getCurrentPosition();
         }
+
 
         //read_sensors();
 
@@ -93,7 +99,7 @@ public class RobotTeleopTankDrive extends OpMode {
         }
 
 
-        setTankDrivePower(leftPower * 1, rightPower * 1L);
+        setTankDrivePower(leftPower * 1, rightPower*1);
        // updateArm();
     }
 
@@ -137,6 +143,14 @@ public class RobotTeleopTankDrive extends OpMode {
         telemetry.addData("rightPower", rightPower);
         telemetry.addData("left position", leftPosition);
         telemetry.addData("right position", rightPosition);
+
+        telemetry.addData("right pos (IN)", rightPosition * POS_TO_IN);
+        telemetry.addData("left pos (IN)", leftPosition * POS_TO_IN);
+
+        /*
+        telemetry.addData("Total right", Math.abs(rightPosition * POS_TO_IN));
+        telemetry.addData("Total left", Math.abs(leftPosition * POS_TO_IN));
+        */
     }
 
     private void read_sensors() {
