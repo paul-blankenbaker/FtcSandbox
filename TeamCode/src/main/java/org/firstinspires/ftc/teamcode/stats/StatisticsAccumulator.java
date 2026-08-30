@@ -23,6 +23,10 @@ public class StatisticsAccumulator {
         return sum / count;
     }
 
+    public double sum() {
+        return sum;
+    }
+
     public double min() {
         return min;
     }
@@ -38,8 +42,7 @@ public class StatisticsAccumulator {
     public double variance() {
         if (count < 2) {
             return 0;
-        }
-        else {
+        } else {
             return (sum2 - (sum * sum) / (double) count) / (count - 1);
         }
     }
