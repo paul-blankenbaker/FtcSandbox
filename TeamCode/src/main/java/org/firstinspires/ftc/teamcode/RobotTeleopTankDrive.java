@@ -61,10 +61,10 @@ public class RobotTeleopTankDrive extends OpMode {
 
     }
     // This is inches over the current position of the robot
-    final static double POS_TO_IN = 0.021295299*1.04;
+    final static double POS_TO_IN = 0.02193927522;
 
-
-
+    double DistanceTrackerOpmMode;
+    double DistanceTracker
 
 
     @Override
@@ -102,28 +102,6 @@ public class RobotTeleopTankDrive extends OpMode {
         setTankDrivePower(leftPower * 1, rightPower*1);
        // updateArm();
     }
-
-   /* private void updateArm() {
-
-        if (gamepad1.dpad_down) {
-
-            rarm_pos = rarm_home_pos;
-            larm_pos = larm_home_pos;
-
-        } else if (gamepad1.dpad_up) {
-
-            rarm_pos = rarm_hover_pos;
-            larm_pos = larm_hover_pos;
-
-        }
-        left_arm.setPosition(larm_pos);
-        right_arm.setPosition(rarm_pos);
-
-
-        telemetry.addData("left servo", left_arm.getPosition());
-        telemetry.addData("right servo", right_arm.getPosition());
-    }
-*/
     private void setTankDrivePower(double leftPower, double rightPower) {
         leftPower = Math.min(1.0, Math.max(-1.0, leftPower));
         backLeftDrive.setPower(leftPower);
@@ -138,6 +116,9 @@ public class RobotTeleopTankDrive extends OpMode {
 
         double leftPosition = backLeftDrive.getCurrentPosition() - backLeftStartPosition;
         double rightPosition = backRightDrive.getCurrentPosition() - backRightStartPosition;
+
+
+
 
         telemetry.addData("leftPower", leftPower);
         telemetry.addData("rightPower", rightPower);
