@@ -1,9 +1,27 @@
 package org.firstinspires.ftc.teamcode.stats;
 
 import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
 public class StatisticsAccumulatorTest {
+
+    @Test
+    public void goalStatsPerGame() {
+        StatisticsAccumulator messi = new StatisticsAccumulator();
+        StatisticsAccumulator ronaldo = new StatisticsAccumulator();
+
+        messi.addValue(5);
+        messi.addValue(3);
+        messi.addValue(1);
+
+        ronaldo.addValue(8);
+        ronaldo.addValue(10);
+        ronaldo.addValue(30);
+
+        assertEquals(48, ronaldo.sum(), 0.0001);
+        assertEquals(9, messi.sum(), 0.0);
+    }
 
     @Test
     public void testAccumulator() {
@@ -36,7 +54,7 @@ public class StatisticsAccumulatorTest {
         assertEquals(2.0, stats.average(), 0.001);
         assertEquals(1.0, stats.min(), 0.001);
         assertEquals(3.0, stats.max(), 0.001);
-        
+
         // Variance for 1, 2, 3:
         // average = 2
         // sum of squares of diffs = (1-2)^2 + (2-2)^2 + (3-2)^2 = 1 + 0 + 1 = 2
