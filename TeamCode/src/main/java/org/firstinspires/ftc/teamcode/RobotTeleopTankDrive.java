@@ -63,8 +63,8 @@ public class RobotTeleopTankDrive extends OpMode {
     // This is inches over the current position of the robot
     final static double POS_TO_IN = 0.02193927522;
 
-    double DistanceTrackerOpmMode;
-    double DistanceTracker
+   // double DistanceTrackerOpmMode;
+  //  double DistanceTracker = 0;
 
 
     @Override
