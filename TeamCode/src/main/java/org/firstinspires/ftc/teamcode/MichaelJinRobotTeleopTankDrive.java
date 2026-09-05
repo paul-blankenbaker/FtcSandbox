@@ -4,18 +4,30 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
 
 
 @TeleOp(name = "Car Drive", group = "Robot")
-public class RobotTeleopTankDrive extends OpMode {
+public class MichaelJinRobotTeleopTankDrive extends OpMode {
     /* Declare OpMode members. */
     public DcMotor backLeftDrive = null;
     public DcMotor backRightDrive = null;
 
     int backLeftStartPosition;
     int backRightStartPosition;
+
+    int backLeftLastPosition;
+    int backRightLastPosition;
+
+    double leftPower;
+    double rightPower;
+
+
+    // This is inches over the current position of the robot
+    final static double POS_TO_IN = 0.02193927522;
+
+    int DistanceTrackerOpMode;
+    static final double WHEEL_DIAMETER_INCHES = 0.78125;
+
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -48,6 +60,12 @@ public class RobotTeleopTankDrive extends OpMode {
         backLeftStartPosition = backLeftDrive.getCurrentPosition();
         backRightStartPosition = backRightDrive.getCurrentPosition();
 
+        //Maybe
+        backLeftLastPosition = backLeftDrive.getCurrentPosition();
+        backRightLastPosition = backRightDrive.getCurrentPosition();
+
+
+
 
 
         telemetry.addData(">", "Robot Ready.  Press START.");
@@ -60,12 +78,10 @@ public class RobotTeleopTankDrive extends OpMode {
 
 
     }
-    // This is inches over the current position of the robot
-    final static double POS_TO_IN = 0.02193927522;
 
-   // double DistanceTrackerOpmMode;
-  //  double DistanceTracker = 0;
 
+
+// ma
 
     @Override
     public void loop() {
@@ -74,11 +90,18 @@ public class RobotTeleopTankDrive extends OpMode {
 
         boolean b;
 
+        int backLeftPos = backLeftDrive.getCurrentPosition();
+        int backRightPos = backRightDrive.getCurrentPosition();
+
+        int movedRobot = (Math.abs(backLeftPos - backLeftLastPosition) + Math.abs(backRightPos - backRightLastPosition))/2;
+
+        backLeftLastPosition = backLeftPos;
+        backRightLastPosition = backRightPos;
+
         if (gamepad1.bWasPressed() == true) {
             backLeftStartPosition = backLeftDrive.getCurrentPosition();
             backRightStartPosition = backRightDrive.getCurrentPosition();
         }
-
 
         //read_sensors();
 
@@ -120,8 +143,11 @@ public class RobotTeleopTankDrive extends OpMode {
 
 
 
+
+
         telemetry.addData("leftPower", leftPower);
         telemetry.addData("rightPower", rightPower);
+
         telemetry.addData("left position", leftPosition);
         telemetry.addData("right position", rightPosition);
 
