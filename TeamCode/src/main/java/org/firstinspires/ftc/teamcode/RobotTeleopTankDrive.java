@@ -25,7 +25,7 @@ public class RobotTeleopTankDrive extends OpMode {
 
     private double rarm_pos, larm_pos;
 
-    private static double larm_home_pos = 0.725hbv
+    private static double larm_home_pos = 0.725;
     private static double larm_hover_pos = 0.54;
 
 
