@@ -19,7 +19,7 @@ public class AutoTestLimelight extends LinearOpMode {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
 
         // Set the pipeline to the one configured for AprilTags (usually 0 or 1 depending on your Limelight settings)
-        limelight.pipelineSwitch(0);
+        limelight.pipelineSwitch(8);
 
         // Start polling for data
         limelight.start();
