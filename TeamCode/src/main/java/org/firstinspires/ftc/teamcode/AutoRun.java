@@ -8,8 +8,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import java.util.List;
 
-@Autonomous(name = "Autonomous Limelight AprilTag", group = "Autonomous")
-public class AutoTestLimelight extends LinearOpMode {
+
+@Autonomous(name = "AutoRun", group = "Autonomous")
+public class AutoRun extends LinearOpMode {
 
     private Limelight3A limelight;
 
@@ -42,26 +43,34 @@ public class AutoTestLimelight extends LinearOpMode {
             // Get the latest result from the Limelight
             LLResult result = limelight.getLatestResult();
 
+            int visibleTagCount = 0;
             if (result != null && result.isValid()) {
                 // Access fiducial (AprilTag) results
                 List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
 
                 if (!fiducialResults.isEmpty()) {
-                    //telemetry.addData("AprilTag", "Detected %d tag(s)", fiducialResults.size());
-
                     for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                        visibleTagCount++;
 
                         // --- NOTIFY THE CODE ---
-                        int onTargetCount = handleAprilTagDetection(fr, 3.56, -9.39, 5);
-                       // telemetry.addData("On Target Cnt", onTargetCount);`
+                        // Position 1
+                        int onTargetCountRL32 = handleAprilTagDetection(fr, 3.56, -5.4, 5);
+
+                        // Position 2 (Replace 0, 0, 0 with your calculated targetX, targetY, maxDistance)
+                        int onTargetCountRR35 = handleAprilTagDetection(fr, 0, 0, 0);
+
+                        // Position 3 (Replace 0, 0, 0 with your calculated targetX, targetY, maxDistance)
+                        int onTargetCountBL44 = handleAprilTagDetection(fr, 0, 0, 0);
+
+                        // Position 4 (Replace 0, 0, 0 with your calculated targetX, targetY, maxDistance)
+                        int onTargetCount49 = handleAprilTagDetection(fr, 0, 0, 0);
                     }
 
-                    // Also get the robot's position on the field if AprilTags are configured in the Limelight web UI
-                    //telemetry.addData("Botpose", result.getBotpose().toString());
                 } else {
                  //   telemetry.addData("AprilTag", "No tags detected (tx: %.2f)", result.getTx());
                 }
             }
+            telemetry.addData("Visible AprilTags", visibleTagCount);
 //            } else {
 //                if (result == null) {
 //                    telemetry.addData("Limelight", "Result is null (Check if start() was called and LL is connected)");
