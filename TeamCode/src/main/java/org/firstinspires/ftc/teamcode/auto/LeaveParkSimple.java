@@ -1,9 +1,12 @@
 package org.firstinspires.ftc.teamcode.auto;
 
+import static android.os.SystemClock.sleep;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name = "Leave park simple", group = "Robot")
@@ -44,10 +47,9 @@ public class LeaveParkSimple extends OpMode {
         telemetry.addData(">", "Robot Ready.  Press START.");
 
 
-
     }
 
-    public void start(){
+    public void start() {
         runTime.reset();
         telemetry.addData(">", "Robot Ready.  Robot Starting.");
     }
@@ -56,7 +58,9 @@ public class LeaveParkSimple extends OpMode {
     @Override
     public void loop() {
         double leftPower = 0.4;
-        if (runTime.milliseconds() > 500) {
+        if (runTime.milliseconds() > 20000) {
+            leftPower = 0;
+        } else if (runTime.milliseconds() > 20500) {
             leftPower = 0;
         }
 
