@@ -58,7 +58,7 @@ public class LeaveParkSimple extends OpMode {
     @Override
     public void loop() {
         double leftPower = 0.4;
-        if (runTime.milliseconds() > 20000) {
+        if (runTime.milliseconds() < 20000) {
             leftPower = 0;
         } else if (runTime.milliseconds() > 20500) {
             leftPower = 0;
