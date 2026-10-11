@@ -21,6 +21,8 @@ public class LeaveParkSimple extends OpMode {
 
     private final ElapsedTime runTime = new ElapsedTime();
 
+    final static double POS_TO_IN = 0.02193928;
+
 
     @Override
     public void init() {
@@ -53,16 +55,20 @@ public class LeaveParkSimple extends OpMode {
         runTime.reset();
         telemetry.addData(">", "Robot Ready.  Robot Starting.");
     }
-// ma
+// The robot runs about 15 inches a 0.4 power and the robot is about 15 inches long.
+    // 17 inches at 0.5 power
 
     @Override
     public void loop() {
-        double leftPower = 0.4;
-        if (runTime.milliseconds() < 20000) {
+        double leftPower = 0.5;
+        if (runTime.milliseconds() < 10000) {
             leftPower = 0;
-        } else if (runTime.milliseconds() > 20500) {
+        } else if (getDistance*POS_TO_IN = 90) {
             leftPower = 0;
         }
+
+        double distanceLeft = getDistance(backLeftDrive, frontLeftDrive);
+        int blPos = backLeftDrive.getCurrentPosition();
 
         double rightPower = leftPower;
 
@@ -78,6 +84,16 @@ public class LeaveParkSimple extends OpMode {
         telemetry.addData("leftPower", leftPower);
         telemetry.addData("rightPower", rightPower);
         telemetry.addData(">", "Robot looping.");
+
+    }
+
+    /**
+     * Returns the average distance reported by two motors in inches
+     * @param backLeftDrive
+     * @param frontLeftDrive
+     * @return
+     */
+    private double getDistance(DcMotor backLeftDrive, DcMotor frontLeftDrive) {
 
     }
 }
