@@ -63,8 +63,8 @@ public class LeaveParkSimple extends OpMode {
         double leftPower = 0.5;
         if (runTime.milliseconds() < 10000) {
             leftPower = 0;
-        } else if (getDistance*POS_TO_IN = 90) {
-            leftPower = 0;
+        //} else if (getDistance*POS_TO_IN = 90) {
+        //    leftPower = 0;
         }
 
         double distanceLeft = getDistance(backLeftDrive, frontLeftDrive);
@@ -94,6 +94,6 @@ public class LeaveParkSimple extends OpMode {
      * @return
      */
     private double getDistance(DcMotor backLeftDrive, DcMotor frontLeftDrive) {
-
+return 0;
     }
 }
