@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.drive.DriveSubsystem;
 
 @TeleOp(name="Mr B: Drive by Power", group="Robot")
-//@Disabled
+@Disabled
 public class DriveByPower extends OpMode {
     private DriveSubsystem drive;
 
