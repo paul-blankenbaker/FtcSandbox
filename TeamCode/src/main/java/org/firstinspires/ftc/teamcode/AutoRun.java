@@ -5,11 +5,13 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import java.util.List;
 
 @Autonomous(name = "AutoRun", group = "Autonomous")
+
 public class AutoRun extends LinearOpMode {
 
     // Drive motors
@@ -18,16 +20,45 @@ public class AutoRun extends LinearOpMode {
     private DcMotor backRightDrive = null;
     private DcMotor frontRightDrive = null;
 
-    // Shooter & Intake motors
     private DcMotor shooterMotor = null;
     private DcMotor intakeMotor = null;
 
     // Vision sensor
     private Limelight3A limelight;
 
+    /*
+    //@Override
+    public void runOpModeFinder() throws InterruptedException {
+        String[] configNames = { "fr", "br", "limelight3a", "shooterMotor", "fl", "bl", "intake", "shooter" };
+        int pick = 3;
+        shooterMotor = hardwareMap.get(DcMotor.class, configNames[pick]);
+
+        waitForStart();
+
+        while (opModeIsActive()) {
+            if (gamepad1.aWasPressed()) {
+                shooterMotor.setPower(.4);
+            } else if (gamepad1.aWasReleased()) {
+                shooterMotor.setPower(0);
+            }
+            if (gamepad1.bWasPressed()) {
+                shooterMotor.setPower(0);
+                pick = (pick + 1) % configNames.length;
+                shooterMotor = hardwareMap.get(DcMotor.class, configNames[pick]);
+            }
+            shooterMotor.setPower(0.5);
+            telemetry.addData("Motor Name", configNames[pick]);
+            telemetry.addData("Shooter Power", shooterMotor.getPower());
+            telemetry.addData("Shooter Position", shooterMotor.getCurrentPosition());
+            telemetry.update();
+        }
+        shooterMotor.setPower(0);
+    }
+*/
     @Override
     public void runOpMode() throws InterruptedException {
         // Initialize drive motors ("bl", "fl", "br", "fr")
+
         try {
             backLeftDrive = hardwareMap.get(DcMotor.class, "bl");
             frontLeftDrive = hardwareMap.get(DcMotor.class, "fl");
@@ -44,27 +75,27 @@ public class AutoRun extends LinearOpMode {
 
         // Initialize Shooter and Intake motors
         try {
-            shooterMotor = hardwareMap.get(DcMotor.class, "shooter");
+            shooterMotor = hardwareMap.get(DcMotor.class, "shooterMotor");
         } catch (Exception e) {
             try {
-                shooterMotor = hardwareMap.get(DcMotor.class, "Intake");
+                shooterMotor = hardwareMap.get(DcMotor.class, "intake");
             } catch (Exception ignored) {}
         }
         try {
-            intakeMotor = hardwareMap.get(DcMotor.class, "Intake");
+            intakeMotor = hardwareMap.get(DcMotor.class, "intake");
         } catch (Exception ignored) {}
 
-        // Initialize Limelight camera 
-        try {
+        // Initialize Limelight camera
+        //try {
             limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        } catch (Exception e) {
-            try {
-                List<Limelight3A> limelights = hardwareMap.getAll(Limelight3A.class);
-                if (!limelights.isEmpty()) {
-                    limelight = limelights.get(0);
-                }
-            } catch (Exception ignored) {}
-        }
+//        } catch (Exception e) {
+//            try {
+//                List<Limelight3A> limelights = hardwareMap.getAll(Limelight3A.class);
+//                if (!limelights.isEmpty()) {
+//                    limelight = limelights.get(0);
+//                }
+//            } catch (Exception ignored) {}
+//        }
 
         if (limelight != null) {
             try {
@@ -101,7 +132,7 @@ public class AutoRun extends LinearOpMode {
                     if (!fiducialResults.isEmpty()) {
                         for (LLResultTypes.FiducialResult fr : fiducialResults) {
                             int id = fr.getFiducialId();
-                            if (id == 32 || id == 35 || id == 44 || id == 39) {
+                            if (id == 32 || id == 35) {
                                 tagFound = true;
                                 handleAprilTagDetection(fr, 3.56, -5.4, 5);
                                 telemetry.addData("Status", "AprilTag Identified (ID: %d)!", id);
@@ -124,21 +155,32 @@ public class AutoRun extends LinearOpMode {
         if (!opModeIsActive()) return;
 
         // AprilTag identified: Shoot constantly for 10 seconds
-        telemetry.addData("Status", "AprilTag Identified! Shooting for 10 seconds...");
+        telemetry.addData("Status", "Found tag: " + tagFound);
         telemetry.update();
 
         if (shooterMotor != null) shooterMotor.setPower(1.0);
-        if (intakeMotor != null && intakeMotor != shooterMotor) intakeMotor.setPower(1.0);
 
-        sleep(5000);
+        sleep(1500);
+       //
+        if (shooterMotor != null) shooterMotor.setPower(.70);
+        sleep(1500);
+        if (shooterMotor != null) shooterMotor.setPower(.850);
+        sleep(1000);
+        if (shooterMotor != null) shooterMotor.setPower(.95);
 
-        if (shooterMotor != null) shooterMotor.setPower(0.0);
-        if (intakeMotor != null && intakeMotor != shooterMotor) intakeMotor.setPower(0.0);
+        sleep(1000);
+        if (intakeMotor != null) intakeMotor.setPower(1.0);
 
+     //   if (intakeMotor != null && intakeMotor != shooterMotor) intakeMotor.setPower(1.0);
+
+        sleep(7000);
+
+
+   //     if (intakeMotor != null) intakeMotor.setPower(0);
 // =========================================================================
         // STEP 2: MOVE FORWARD 2 FEET (Toward ID)
         // =========================================================================
-        telemetry.addData("Step 2", "Moving 2 feet forward...");
+        telemetry.addData("Step 2", "Moving forward...");
         telemetry.update();
         turnRight(0.5, 300);    // driveForTime(0.5, 0.5, 1600);
         sleep(300);
@@ -154,9 +196,9 @@ public class AutoRun extends LinearOpMode {
         // =========================================================================
         // STEP 4: MOVE FORWARD 2.3 FEET
         // =========================================================================
-        telemetry.addData("Step 4", "Moving 2.3 feet forward...");
+        telemetry.addData("Step 4", "Moving forward...");
         telemetry.update();
-        turnRight(0.5, 950);
+        turnRight(0.5, 1100);
         sleep(300);
 
 
@@ -248,3 +290,6 @@ public class AutoRun extends LinearOpMode {
 
     }
 }
+
+
+
