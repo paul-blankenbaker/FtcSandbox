@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.stats.StatisticsAccumulator;
 
 /**
  * Calculator to help determine power values to produce specific voltage outputs.
@@ -30,6 +31,7 @@ public class PowerVoltageCalculator {
 
     // Incremented whenever someone requests more volts than the power supply has
     private int brownOuts;
+    private final StatisticsAccumulator stats = new StatisticsAccumulator();
 
     public PowerVoltageCalculator(HardwareMap.DeviceMapping<VoltageSensor> voltageSensor) {
         this.voltageSensor = voltageSensor;
@@ -103,12 +105,13 @@ public class PowerVoltageCalculator {
             if (v > 0) {
                 batteryVoltage = v;
                 batterySensorBroken = false;
+                stats.addValue(v);
                 return;
             }
         }
 
         // We failed to determine the battery power, indicate sensor is broken
-        // and we'll continue using the last value
+        // we'll continue using the last value
         batterySensorBroken = true;
     }
 
@@ -118,7 +121,10 @@ public class PowerVoltageCalculator {
      * @param telemetry Where to add values.
      */
     public void addData(Telemetry telemetry) {
-        telemetry.addData("Volts Available", batterySensorBroken ? 0.0 : getVoltage());
+        telemetry.addData("Volts Now", "%.3f", batterySensorBroken ? 0.0 : getVoltage());
+        telemetry.addData("Volts Min", "%.3f", stats.min());
+        telemetry.addData("Volts Avg", "%.3f", stats.average());
+        telemetry.addData("Volts Max", "%.3f", stats.max());
         telemetry.addData("Brownouts", brownOuts);
     }
 }

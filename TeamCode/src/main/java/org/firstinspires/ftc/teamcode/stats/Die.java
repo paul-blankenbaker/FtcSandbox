@@ -8,9 +8,10 @@ public class Die {
     private int currentRoll; // Variable that stores the die roll
 
     public Die(int numSides) {
-        // Enforce that the number of sides must be greater than 3
-        if (numSides <= 3) {
-            throw new IllegalArgumentException("A die must have more than 3 sides.");
+        // Enforce that the number of sides must be greater than 0 (OK, I know it's hard
+        // to build a 1 sided die - unless you count a sphere as having one side)
+        if (numSides <= 0) {
+            throw new IllegalArgumentException("A die must have at least 1 side.");
         }
         this.numSides = numSides;
         this.random = new Random();
