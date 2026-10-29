@@ -6,10 +6,8 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-
-import org.firstinspires.ftc.robotcore.internal.camera.delegating.DelegatingCaptureSequence;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.List;
 
@@ -28,6 +26,8 @@ public class AutoRun2 extends LinearOpMode {
 
     // Vision sensor
     private Limelight3A limelight;
+
+    private PowerVoltageCalculator powerCalculator;
 
     /*
     //@Override
@@ -61,7 +61,7 @@ public class AutoRun2 extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         // Initialize drive motors ("bl", "fl", "br", "fr")
-
+        powerCalculator = new PowerVoltageCalculator(hardwareMap.voltageSensor);
         try {
             backLeftDrive = hardwareMap.get(DcMotor.class, "bl");
             frontLeftDrive = hardwareMap.get(DcMotor.class, "fl");
@@ -72,6 +72,7 @@ public class AutoRun2 extends LinearOpMode {
             frontLeftDrive.setDirection(DcMotor.Direction.FORWARD);
             backRightDrive.setDirection(DcMotor.Direction.REVERSE);
             frontRightDrive.setDirection(DcMotor.Direction.REVERSE);
+
         } catch (Exception e) {
             telemetry.addData("Warning", "Drive motors not configured properly in HardwareMap");
         }
@@ -128,7 +129,10 @@ public class AutoRun2 extends LinearOpMode {
         boolean tagFound = false;
 
         // Keep scanning while OpMode is active until an AprilTag is identified
-        while (opModeIsActive() && !tagFound) {
+        long maxWaitMillis = 18_000;
+        ElapsedTime timeWaited = new ElapsedTime();
+
+        while (opModeIsActive() && !tagFound && (timeWaited.milliseconds() < maxWaitMillis)) {
             if (limelight != null) {
                 LLResult result = limelight.getLatestResult();
                 if (result != null && result.isValid()) {
@@ -164,22 +168,23 @@ public class AutoRun2 extends LinearOpMode {
         telemetry.addData("Status", "Found tag: " + tagFound);
         telemetry.update();
 
-        if (shooterMotor != null) shooterMotor.setPower(1.0);
+     if(tagFound) {
+         if (shooterMotor != null) shooterMotor.setPower(1.0);
 
-        sleep(1500);
-        //
-        if (shooterMotor != null) shooterMotor.setPower(.65);
-        sleep(1500);
-        if (shooterMotor != null) shooterMotor.setPower(.800);
-        sleep(1000);
-        if (shooterMotor != null) shooterMotor.setPower(.90);
+         sleep(2500);
 
-        sleep(1000);
-        if (intakeMotor != null) intakeMotor.setPower(1.0);
+         if (intakeMotor != null) intakeMotor.setPower(1.0);
 
-        //   if (intakeMotor != null && intakeMotor != shooterMotor) intakeMotor.setPower(1.0);
+         if (shooterMotor != null) shooterMotor.setPower(.94);
+         sleep(1500);
+         if (shooterMotor != null) shooterMotor.setPower(1);
+         sleep(1000);
+         if (shooterMotor != null) shooterMotor.setPower(1.05);
 
-        sleep(7000);
+
+         if (intakeMotor != null) intakeMotor.setPower(0);
+         if (shooterMotor != null) shooterMotor.setPower(0);
+     }
 
 
         //     if (intakeMotor != null) intakeMotor.setPower(0);
@@ -188,31 +193,37 @@ public class AutoRun2 extends LinearOpMode {
         // =========================================================================
         telemetry.addData("Step 2", "Moving forward...");
         telemetry.update();
-        turnRight(0.5, 600);    // driveForTime(0.5, 0.5, 1600);
+        driveStraight(6.5, +400);    // driveForTime(0.5, 0.5, 1600);
         sleep(300);
         // =========================================================================
         // STEP 3: TURN RIGHT 90 DEGREES
         // =========================================================================
-        telemetry.addData("Step 3", "Turning right 90 degrees...");
+        telemetry.addData("Step 3", "360s...");
         telemetry.update();
-        driveForTime(0.5, -0.5, 450);
+        rightSpin(-6.5, -6.5, 400);
         sleep(300);
 
 
-        // =========================================================================
+        // =========================================================================`
         // STEP 4: MOVE FORWARD 2.3 FEET
         // =========================================================================
         telemetry.addData("Step 4", "Moving forward...");
         telemetry.update();
-        turnRight(0.5, 1100);
+        driveStraight(6.5, 350);
         sleep(300);
 
+        rightSpin(6.5, 6.5, 350);
+        sleep(300);
+
+        driveStraight(6.5, 1450);
+        sleep(300);
 
         // Finish OpMode
+
         if (limelight != null) {
             limelight.stop();
         }
-        setDrivePower(0, 0);
+        setDriveVolts(0, 0);
         telemetry.addData("Status", "Autonomous Complete!");
         telemetry.update();
     }
@@ -220,7 +231,12 @@ public class AutoRun2 extends LinearOpMode {
     /**
      * Sets individual power to each drive motor
      */
-    private void setMotorPowers(double flPower, double blPower, double frPower, double brPower) {
+    private void setMotorVolts(double flVolts, double blVolts, double frVolts, double brVolts) {
+        powerCalculator.update();
+        double flPower = powerCalculator.voltageToPower(flVolts);
+        double blPower = powerCalculator.voltageToPower(blVolts);
+        double frPower = powerCalculator.voltageToPower(frVolts);
+        double brPower = powerCalculator.voltageToPower(brVolts);
         if (frontLeftDrive != null) frontLeftDrive.setPower(flPower);
         if (backLeftDrive != null) backLeftDrive.setPower(blPower);
         if (frontRightDrive != null) frontRightDrive.setPower(frPower);
@@ -230,28 +246,28 @@ public class AutoRun2 extends LinearOpMode {
     /**
      * Helper to set power to left and right drive sides
      */
-    private void setDrivePower(double leftPower, double rightPower) {
-        setMotorPowers(leftPower, leftPower, rightPower, rightPower);
+    private void setDriveVolts(double leftPower, double rightPower) {
+        setMotorVolts(leftPower, leftPower, rightPower, rightPower);
     }
 
     /**
      * Simple timed driving helper function
      */
-    private void driveForTime(double leftPower, double rightPower, long durationMs) {
+    private void rightSpin(double leftPower, double rightPower, long durationMs) {
         if (!opModeIsActive()) return;
-        setDrivePower(leftPower, rightPower);
+        setDriveVolts(leftPower, rightPower);
         sleep(durationMs);
-        setDrivePower(0, 0);
+        setDriveVolts(0, 0);
     }
 
     /**
      * Turns right for a specified duration in milliseconds
      */
-    private void turnRight(double power, long durationMs) {
+    private void driveStraight(double power, long durationMs) {
         if (!opModeIsActive()) return;
-        setDrivePower(power, -power);
+        setDriveVolts(power, -power);
         sleep(durationMs);
-        setDrivePower(0, 0);
+        setDriveVolts(0, 0);
     }
 
     /**
