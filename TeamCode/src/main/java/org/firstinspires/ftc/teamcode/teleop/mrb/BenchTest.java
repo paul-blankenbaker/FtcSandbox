@@ -56,16 +56,24 @@ public class BenchTest extends OpMode {
         servoNames = hardwareMap.getAllNames(Servo.class).toArray(new String[0]);
         crServoNames = hardwareMap.getAllNames(CRServo.class).toArray(new String[0]);
 
-        imu = hardwareMap.get(IMU.class, BenchTestConfig.IMU_NAME);
-        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(
-                BenchTestConfig.LOGO_FACING_DIR,
-                BenchTestConfig.USB_FACING_DIR
-        );
-        imu.initialize(new IMU.Parameters(orientationOnRobot));
+        try {
+            imu = hardwareMap.get(IMU.class, BenchTestConfig.IMU_NAME);
+            RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(
+                    BenchTestConfig.LOGO_FACING_DIR,
+                    BenchTestConfig.USB_FACING_DIR
+            );
+            imu.initialize(new IMU.Parameters(orientationOnRobot));
+        } catch (Exception e) {
+            telemetry.addData("IMU Error", e.getMessage());
+            imu = null;
+        }
 
         List<String> deviceClasses = new ArrayList<>();
         for (HardwareMap.DeviceMapping<? extends HardwareDevice> deviceMapping : hardwareMap.allDeviceMappings) {
-            deviceClasses.add(deviceMapping.getDeviceTypeClass().getSimpleName() + " " + deviceMapping.size());
+            int n = deviceMapping.size();
+            if (n > 0) {
+                deviceClasses.add(deviceMapping.getDeviceTypeClass().getSimpleName() + " " + deviceMapping.size());
+            }
         }
 
         telemetry.addData("X", "Select Device Type");
@@ -91,23 +99,35 @@ public class BenchTest extends OpMode {
         powerVoltageCalculator.update();
 
         if (gamepad1.xWasPressed()) {
-            mode = Mode.values()[(mode.ordinal() + 1) % Mode.values().length];
+            changeMode();
         }
         telemetry.addData("Mode", mode);
 
-        if (mode == Mode.DcMotor && motorNames.length > 0) {
+        if (mode == Mode.DcMotor && hasDevices(motorNames.length)) {
             updateMotor();
-        } else if (mode == Mode.Servo && servoNames.length > 0) {
+        } else if (mode == Mode.Servo && hasDevices(servoNames.length)) {
             updateServo();
-        } else if (mode == Mode.CRServo && crServoNames.length > 0) {
+        } else if (mode == Mode.CRServo && hasDevices(crServoNames.length)) {
             updateCRServo();
         } else if (mode == Mode.Battery) {
             powerVoltageCalculator.addData(telemetry);
-        } else if (mode == Mode.Imu) {
+        } else if (mode == Mode.Imu && hasDevices(imu != null ? 1 : 0)) {
             showImuInfo();
         }
 
         telemetry.update();
+    }
+
+    private boolean hasDevices(int length) {
+        if (length == 0) {
+            changeMode();
+            return false;
+        }
+        return true;
+    }
+
+    private void changeMode() {
+        mode = Mode.values()[(mode.ordinal() + 1) % Mode.values().length];
     }
 
     private void showImuInfo() {
@@ -127,7 +147,7 @@ public class BenchTest extends OpMode {
             servoPosition = servo.getPosition();
         }
         Servo servo = hardwareMap.get(Servo.class, servoNames[servoIndex]);
-        double seekPosition = gamepad1.a ? ((gamepad1.left_stick_x + 2) / 2.0) : servoPosition;
+        double seekPosition = gamepad1.a ? ((gamepad1.left_stick_x + 1) / 2.0) : servoPosition;
         seekPosition = gamepad1.dpad_down ? BenchTestConfig.DPAD_DOWN_SERVO_POSITION : seekPosition;
         seekPosition = gamepad1.dpad_up ? BenchTestConfig.DPAD_UP_SERVO_POSITION : seekPosition;
         servo.setPosition(seekPosition);
