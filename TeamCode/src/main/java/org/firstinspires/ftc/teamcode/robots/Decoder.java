@@ -21,6 +21,9 @@ public class Decoder {
     private final PowerVoltageCalculator voltageCalculator;
 
     private final RpmCalculator shooterRpmCalculator;
+    private double currentRpm;
+    private double previousRpm;
+    private boolean shooterPidEnabled;
 
 
     public Decoder(HardwareMap hardwareMap) {
@@ -37,6 +40,9 @@ public class Decoder {
     public void update() {
         voltageCalculator.update();
         shooterRpmCalculator.addSample(getShooterCounts());
+        previousRpm = currentRpm;
+        currentRpm = shooterRpmCalculator.computeRpm(0.050);
+        updateShooterPid();
     }
 
     public void drive(Gamepad gamepad) {
@@ -47,6 +53,7 @@ public class Decoder {
         shooterRight.setPower(power);
         shooterLeft.setPower(power);
     }
+
     public void setShooterVolts(double volts) {
         double power = voltageCalculator.voltageToPower(volts);
         setShooterPower(power);
@@ -59,6 +66,7 @@ public class Decoder {
     public void intakeStop() {
         intake.setPower(0);
     }
+
     public void intakePullIn() {
         setIntakeVolts(6.0);
     }
@@ -85,6 +93,25 @@ public class Decoder {
     }
 
     public void stopShooter() {
+        shooterPidEnabled = false;
         setShooterPower(0.0);
+    }
+
+    public void startShooterPid() {
+        shooterPidEnabled = true;
+        updateShooterPid();
+    }
+
+    public void updateShooterPid() {
+        if (!shooterPidEnabled) {
+            return;
+        }
+        double error = DecoderConfig.SHOOTER_TARGET_RPM - currentRpm;
+        double f = DecoderConfig.SHOOTER_TARGET_RPM * DecoderConfig.SHOOTER_KF;
+        double p = error * DecoderConfig.SHOOTER_KP;
+        double d = error * (currentRpm - previousRpm) / (shooterRpmCalculator.getSampleTime(0) - shooterRpmCalculator.getSampleTime(-1));
+        // No i yet
+        double volts = f + p + d;
+        setShooterVolts(volts);
     }
 }

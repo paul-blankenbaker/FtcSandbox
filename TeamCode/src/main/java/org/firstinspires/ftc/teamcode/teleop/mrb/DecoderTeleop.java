@@ -20,7 +20,13 @@ public class DecoderTeleop extends OpMode {
         robot.update();
         robot.drive(gamepad1);
 
-        if (gamepad1.dpadDownWasPressed()) {
+        if (gamepad1.aWasPressed()) {
+            if (robot.isShooterRunning()) {
+                robot.stopShooter();
+            } else {
+                robot.startShooterPid();
+            }
+        } else if (gamepad1.dpadDownWasPressed()) {
             shooterVolts -= 0.25;
         } else if (gamepad1.dpadUpWasPressed()) {
             shooterVolts += 0.25;
