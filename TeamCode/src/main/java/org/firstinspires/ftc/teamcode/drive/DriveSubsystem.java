@@ -45,10 +45,10 @@ public class DriveSubsystem {
         if (leftFrontMotor != null && leftBackMotor != null && rightFrontMotor != null && rightBackMotor != null) {
             // TODO: Need to check - if we aren't consistent with how they are mounted/wired
             // this won't work!
-            leftFrontMotor.setDirection(DcMotor.Direction.REVERSE);
-            leftBackMotor.setDirection(DcMotor.Direction.REVERSE);
-            rightFrontMotor.setDirection(DcMotor.Direction.FORWARD);
-            rightBackMotor.setDirection(DcMotor.Direction.FORWARD);
+            leftFrontMotor.setDirection(DcMotor.Direction.FORWARD);
+            leftBackMotor.setDirection(DcMotor.Direction.FORWARD);
+            rightFrontMotor.setDirection(DcMotor.Direction.REVERSE);
+            rightBackMotor.setDirection(DcMotor.Direction.REVERSE);
             return new DriveSubsystem(leftFrontMotor, leftBackMotor, rightFrontMotor, rightBackMotor, true);
         }
 
@@ -58,8 +58,8 @@ public class DriveSubsystem {
         if (leftMotor != null && rightMotor != null) {
             // TODO: Need to check - if we aren't consistent with how they are mounted/wired
             // this won't work
-            leftMotor.setDirection(DcMotor.Direction.REVERSE);
-            rightMotor.setDirection(DcMotor.Direction.FORWARD);
+            leftMotor.setDirection(DcMotor.Direction.FORWARD);
+            rightMotor.setDirection(DcMotor.Direction.REVERSE);
             return new DriveSubsystem(leftMotor, rightMotor);
         }
 
