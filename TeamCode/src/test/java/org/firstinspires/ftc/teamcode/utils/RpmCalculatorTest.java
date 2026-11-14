@@ -198,4 +198,46 @@ public class RpmCalculatorTest {
         assertEquals(5, calc.getSampleCount());
         assertEquals(5.0, calc.getSamplesPerSecond(), EPSILON);
     }
+
+    @Test
+    public void testGetSampleTime() {
+        RpmCalculator calc = new RpmCalculator(28.0, 5);
+
+        // 1. No samples added -> return 0 for any index
+        assertEquals(0L, calc.getSampleTime(0));
+        assertEquals(0L, calc.getSampleTime(-1));
+        assertEquals(0L, calc.getSampleTime(1));
+
+        // 2. Add 3 samples
+        calc.addSample(10, 1000L);
+        calc.addSample(20, 2000L);
+        calc.addSample(30, 3000L);
+
+        assertEquals(3000L, calc.getSampleTime(0));   // Newest
+        assertEquals(2000L, calc.getSampleTime(-1));  // Previous
+        assertEquals(1000L, calc.getSampleTime(-2));  // Oldest available
+
+        // Invalid / out-of-bounds queries
+        assertEquals(0L, calc.getSampleTime(1));     // Future sample index
+        assertEquals(0L, calc.getSampleTime(-3));    // Before available samples
+        assertEquals(0L, calc.getSampleTime(-100));  // Out of range negative index
+
+        // 3. Add more samples to force circular buffer wrap around
+        // Capacity is 5, adding samples at 4000L, 5000L, 6000L, 7000L, 8000L (total 8 samples added)
+        for (long t = 4000L; t <= 8000L; t += 1000L) {
+            calc.addSample(0, t);
+        }
+        assertEquals(5, calc.getSampleCount());
+
+        assertEquals(8000L, calc.getSampleTime(0));   // Newest
+        assertEquals(7000L, calc.getSampleTime(-1));
+        assertEquals(6000L, calc.getSampleTime(-2));
+        assertEquals(5000L, calc.getSampleTime(-3));
+        assertEquals(4000L, calc.getSampleTime(-4));  // Oldest stored sample
+
+        // Out of bounds queries after rollover
+        assertEquals(0L, calc.getSampleTime(1));
+        assertEquals(0L, calc.getSampleTime(-5));
+        assertEquals(0L, calc.getSampleTime(-100));
+    }
 }

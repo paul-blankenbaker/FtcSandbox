@@ -115,4 +115,17 @@ public class RpmCalculator {
         double durationSeconds = duration * 1e-9;
         return (sampleCount - 1) / durationSeconds;
     }
+
+    /**
+     * Returns the nanosecond time of a sample.
+     * @param sampleIndex The index of the sample where 0 is the newest sample and -1 is the previous sample.
+     * @return the nanosecond time of the sample, or 0 if insufficient data
+     */
+    public long getSampleTime(int sampleIndex) {
+        if (sampleCount == 0 || sampleIndex > 0 || sampleIndex < -(sampleCount - 1)) {
+            return 0;
+        }
+        int index = (currentSampleIndex + sampleIndex + nanoTimestampValues.length) % nanoTimestampValues.length;
+        return nanoTimestampValues[index];
+    }
 }
