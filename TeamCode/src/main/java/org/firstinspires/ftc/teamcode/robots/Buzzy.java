@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.utils.PowerVoltageCalculator;
 /**
  * The 2026-2027 starter bot with intake on opposite side of shooter.
  */
-public class Buzzy {
+public final class Buzzy {
 
     private final DcMotorEx shooterMotor;
     private final DcMotor intakeMotor;
@@ -171,6 +171,18 @@ public class Buzzy {
         return Math.abs(shooterMotor.getPower()) > 0.05;
     }
 
+    public boolean isShooterSpeedOk() {
+        return Math.abs(currentShooterError) < BuzzyConfig.SHOOTER_RPM_TOLERANCE;
+    }
+
+    public int getShooterInRangeCount() {
+        return shooterInRangeCount;
+    }
+
+    public boolean isShooterReady() {
+        return shooterPidEnabled && (getShooterInRangeCount() > 3) && isShooterSpeedOk();
+    }
+
     public void stopShooter() {
         shooterPidEnabled = false;
         setShooterPower(0.0);
@@ -193,8 +205,7 @@ public class Buzzy {
         // Compute RPM error (how far off target we are)
         currentShooterError = BuzzyConfig.SHOOTER_TARGET_RPM - currentRpm;
 
-        boolean shooterSpeedOk = Math.abs(currentShooterError) < BuzzyConfig.SHOOTER_RPM_TOLERANCE;
-        if (shooterSpeedOk) {
+        if (isShooterSpeedOk()) {
             // To help handle momentary "blips",
             if (shooterLostLockCount >= 3) {
                 shooterInRangeCount = 0;

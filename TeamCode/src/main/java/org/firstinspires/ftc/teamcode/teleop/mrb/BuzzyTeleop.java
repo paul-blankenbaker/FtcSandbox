@@ -43,7 +43,7 @@ public class BuzzyTeleop extends OpMode {
     }
 
     private void updateFeederControl() {
-        if (gamepad1.rightTriggerWasPressed()) {
+        if (gamepad1.rightTriggerWasPressed() && robot.isShooterReady()) {
             robot.setFeederVolts(BuzzyConfig.FEEDER_VOLTS, BuzzyConfig.FEEDER_DURATION_MILLIS);
         }
     }
