@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.robots.Buzzy;
 import org.firstinspires.ftc.teamcode.robots.BuzzyConfig;
-import org.firstinspires.ftc.teamcode.robots.Decoder;
 
 @TeleOp(name = "Mr B: Buzzy Teleop", group = "Robot")
 public class BuzzyTeleop extends OpMode {
@@ -24,7 +23,7 @@ public class BuzzyTeleop extends OpMode {
     @Override
     public void loop() {
         robot.update();
-        robot.drive(gamepad1);
+        robot.drive(gamepad1, telemetry);
 
         updateShooterControl();
         updateFeederControl();
