@@ -130,7 +130,7 @@ public class ColorSensorInspector extends OpMode {
         telemetry.addData("Alpha", "%.3f", colors.alpha);
 
         /* If this color sensor also has a distance sensor, display the measured distance.
-         * Note that the reported distance is only useful at very close range, and is impacted by
+         * Note that the reported distance is only useful at very close.java range, and is impacted by
          * ambient light and surface reflectivity. */
         if (colorSensor instanceof DistanceSensor) {
             telemetry.addData("Distance (cm)", "%.3f", ((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM));

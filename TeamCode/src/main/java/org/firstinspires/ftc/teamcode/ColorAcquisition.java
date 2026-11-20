@@ -232,7 +232,7 @@ public class ColorAcquisition extends LinearOpMode {
 
 
             /* If this color sensor also has a distance sensor, display the measured distance.
-             * Note that the reported distance is only useful at very close range, and is impacted by
+             * Note that the reported distance is only useful at very close.java range, and is impacted by
              * ambient light and surface reflectivity. */
             double distance = 0;
             if (colorSensor instanceof DistanceSensor) {

@@ -33,6 +33,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
@@ -64,18 +66,18 @@ public class RandomWheelSpin extends OpMode{
     @Override
     public void init() {
         // Define and Initialize Motors
-        leftFrontDrive  = hardwareMap.get(DcMotor.class, "frontLeft");
-        rightFrontDrive = hardwareMap.get(DcMotor.class, "frontRight");
-        leftBackDrive = hardwareMap.get(DcMotor.class, "backLeft");
-        rightBackDrive = hardwareMap.get(DcMotor.class, "backRight");
+        leftFrontDrive  = hardwareMap.get(DcMotor.class, "fl");
+        rightFrontDrive = hardwareMap.get(DcMotor.class, "fr");
+        leftBackDrive = hardwareMap.get(DcMotor.class, "bl");
+        rightBackDrive = hardwareMap.get(DcMotor.class, "br");
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // Pushing the left and right sticks forward MUST make robot go forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
-        leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
-        rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
-        leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
-        rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
+        leftFrontDrive.setDirection(DcMotor.Direction.FORWARD);
+        rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);
+        leftBackDrive.setDirection(DcMotor.Direction.FORWARD);
+        rightBackDrive.setDirection(DcMotor.Direction.REVERSE);
 
         // If there are encoders connected, switch to RUN_USING_ENCODER mode for greater accuracy
         // leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -104,23 +106,30 @@ public class RandomWheelSpin extends OpMode{
     /*
      * Code to run REPEATEDLY after the driver hits START but before they hit STOP
      */
+
+    public void driveArcade(double forwardPower, double rotateRightPower) {
+        double leftPower = forwardPower + rotateRightPower;
+        double rightPower = forwardPower - rotateRightPower;
+        double scale = Math.max(Math.abs(leftPower), Math.abs(rightPower));
+        if (scale > 1) {
+            leftPower /= scale;
+            rightPower /= scale;
+        }
+
+        leftBackDrive.setPower(leftPower);
+        rightBackDrive.setPower(rightPower);
+        leftFrontDrive.setPower(leftPower);
+        rightFrontDrive.setPower(rightPower);
+
+    }
+
+    public void driveArcade(Gamepad gamepad) {
+        driveArcade(-gamepad.left_stick_y, gamepad.right_stick_x);
+    }
+
     @Override
     public void loop() {
-        double left;
-        double right;
-
-        // Run wheels in tank mode (note: The joystick goes negative when pushed forward, so negate it)
-        left = -gamepad1.left_stick_y;
-        right = -gamepad1.right_stick_y;
-
-        leftFrontDrive.setPower(left);
-        rightFrontDrive.setPower(right);
-        leftBackDrive.setPower(left);
-        rightBackDrive.setPower(right);
-
-
-        telemetry.addData("left",  "%.2f", left);
-        telemetry.addData("right", "%.2f", right);
+        driveArcade(gamepad1);
     }
 
     /*

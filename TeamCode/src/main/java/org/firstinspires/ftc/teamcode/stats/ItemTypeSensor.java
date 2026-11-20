@@ -16,7 +16,7 @@ public class ItemTypeSensor {
         BLUE_NECTAR // Ball is blue nectar
     }
 
-    private NormalizedColorSensor colorSensor;
+    private final NormalizedColorSensor colorSensor;
 
     public ItemTypeSensor(HardwareMap hardwareMap, String colorSensorName) {
         colorSensor = hardwareMap.get(NormalizedColorSensor.class, "colorSensor");

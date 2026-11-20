@@ -140,7 +140,7 @@ public class JavaPrimitivesTest {
         // Short: 16-bit (-32,768 to 32,767)
         myShort = 32767;
         myShort++;
-        assertEquals(-32768, (short) myShort);
+        assertEquals(-32768, myShort);
     }
 
     @Test
@@ -169,9 +169,9 @@ public class JavaPrimitivesTest {
         myBoolean = true;
 
         // Logical Operators
-        Assert.assertTrue(myBoolean && true);  // AND
-        Assert.assertTrue(myBoolean || false); // OR
-        Assert.assertFalse(!myBoolean);        // NOT (Invert)
+        Assert.assertTrue(myBoolean);  // AND
+        Assert.assertTrue(myBoolean); // OR
+        Assert.assertTrue(myBoolean);        // NOT (Invert)
     }
 
     @Test

@@ -38,6 +38,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.utils.PowerVoltageCalculator;
+
 import java.util.Calendar;
 
 /*
@@ -66,6 +68,7 @@ public class BuzzyTele extends OpMode {
     private CRServo RSI;
     private CRServo LSI;
     private ElapsedTime shooterDelay = new ElapsedTime();
+    private PowerVoltageCalculator powerCalculator;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -73,6 +76,8 @@ public class BuzzyTele extends OpMode {
     @Override
     public void init() {
         // Define and Initialize Motors
+        powerCalculator = new PowerVoltageCalculator(hardwareMap.voltageSensor);
+
         leftBackDrive = hardwareMap.get(DcMotor.class, "bl");
         rightBackDrive = hardwareMap.get(DcMotor.class, "br");
         shooterMotor = hardwareMap.get(DcMotor.class, "shooter");
@@ -121,7 +126,7 @@ public class BuzzyTele extends OpMode {
         double leftPower = forwardPower + rotateRightPower;
         double rightPower = forwardPower - rotateRightPower;
         double scale = Math.max(Math.abs(leftPower), Math.abs(rightPower));
-        if (scale > 1.0) {
+        if (scale > 1) {
             leftPower /= scale;
             rightPower /= scale;
         }
@@ -135,45 +140,63 @@ public class BuzzyTele extends OpMode {
 
     @Override
     public void loop() {
-
+        powerCalculator.update();
         driveArcade(gamepad1);
 
-        if (gamepad1.aWasPressed() && intakeMotor != null) {
-            intakeMotor.setPower(1.0);
-            RSI.setPower(1.0);
-            LSI.setPower(1.0);
-        }
-        if (gamepad1.aWasReleased() && intakeMotor != null) {
-            intakeMotor.setPower(0.0);
-            RSI.setPower(0.0);
-            LSI.setPower(0.0);// Optional: Stops the motor when button is not pressed
-        }
+//        if (gamepad1.leftTriggerWasPressed() && intakeMotor != null) {
+//            intakeMotor.setPower(1.0);
+//            RSI.setPower(1.0);
+//            LSI.setPower(-1.0);
+//
+//        }
+//        if (gamepad1.leftTriggerWasReleased() && intakeMotor != null) {
+//            intakeMotor.setPower(0.0);
+//            RSI.setPower(0.0);
+//            LSI.setPower(0.0);
 
-// Check if button B was pressed, and ensure the shooterMotor exists before setting power
-        if (gamepad1.bWasPressed() && shooterMotor != null) {
-            shooterMotor.setPower(1);
+//                                                                                  `           }
 
-            if (shooterDelay.milliseconds() > 1000) {
-                Feeder.setPower(.7);
+        if (gamepad1.rightTriggerWasPressed()) {
+            if (shooterMotor.getPower() == 0) {
+                shooterMotor.setPower(powerCalculator.voltageToPower(6.65, true));
+            }
+            else {
+                shooterMotor.setPower(powerCalculator.voltageToPower(0, true));
             }
         }
-        if (gamepad1.bWasReleased() && shooterMotor != null){
-            shooterMotor.setPower(0.0);
-            Feeder.setPower(0.0);}
-        //put the timer end here
-//        if (Feeder = -gamepad1.aWasPressed());
-//        (Feeder != null) Feeder.setPower(1.0);
-//
-//        if (shooterMotor = -gamepad1.bWasPressed());
-//        (shooterMotor != null) shooterMotor.setPower(1.0);
 
+        if (gamepad1.leftTriggerWasPressed()) {
+            if (intakeMotor.getPower() == 0) {
+                intakeMotor.setPower(1.0);
+                RSI.setPower(1.0);
+                LSI.setPower(-1.0);
+            }
+            else {
+                intakeMotor.setPower(0);
+                RSI.setPower(0);
+                LSI.setPower(0);
+            }
+        }
+
+
+        if (gamepad1.leftBumperWasPressed() && shooterMotor != null) {
+            Feeder.setPower(powerCalculator.voltageToPower(6.75, true));
+
+            if (shooterDelay.milliseconds() > 3000) {
+
+            }
+        }
+        if (gamepad1.leftBumperWasReleased() && shooterMotor != null) {
+            Feeder.setPower(0.0);
+
+            ;
+        }
+
+    // when button y is pressed on the gamepad, the feeder servo should reverse and spin backward
 
     }
 
 
-    /*
-     * Code to run ONCE after the driver hits STOP
-     */
     @Override
     public void stop() {
     }

@@ -61,7 +61,7 @@ public class DriveByVolts extends OpMode {
 
     @Override
     public void start() {
-        forceLoopTimingNanos = DriveByVoltsConfig.forceLoopTimingMillis * 1000000;
+        forceLoopTimingNanos = DriveByVoltsConfig.forceLoopTimingMillis * 1000000L;
         // Create a new PowerVoltageCalculator instance (to reset the tracked statistics each time we start)
         powerVoltageCalculator = new PowerVoltageCalculator(hardwareMap.voltageSensor);
         // When match starts, make sure we're back to the initial state

@@ -98,7 +98,7 @@ public class MichaelJinRobotTeleopTankDrive extends OpMode {
         backLeftLastPosition = backLeftPos;
         backRightLastPosition = backRightPos;
 
-        if (gamepad1.bWasPressed() == true) {
+        if (gamepad1.bWasPressed()) {
             backLeftStartPosition = backLeftDrive.getCurrentPosition();
             backRightStartPosition = backRightDrive.getCurrentPosition();
         }
