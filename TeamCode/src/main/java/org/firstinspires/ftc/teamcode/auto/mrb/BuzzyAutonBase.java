@@ -46,6 +46,9 @@ public abstract class BuzzyAutonBase extends OpMode {
         forceLoopTimingNanos = BuzzyAutonConfig.forceLoopTimingMillis * 1000000L;
 
         commandTree = createAutonStateTree();
+        if (commandTree != null) {
+            commandTree.start();
+        }
 
         loopTimeStats = new StatisticsAccumulator();
         lastLoopTime = Long.MAX_VALUE;
@@ -55,6 +58,9 @@ public abstract class BuzzyAutonBase extends OpMode {
 
     @Override
     public void stop() {
+        if (commandTree != null) {
+            commandTree.stop();
+        }
         robot.stop();
     }
 
@@ -70,10 +76,10 @@ public abstract class BuzzyAutonBase extends OpMode {
         updateLoopTimeStats();
 
         // See if there are more auton states to work on
-        if (commandTree != null) {
-            commandTree = commandTree.update();
+        if (commandTree != null && !commandTree.isFinished()) {
+            commandTree.update();
         } else {
-            stop();
+            robot.stop();
         }
 
         // Update diagnostic values
