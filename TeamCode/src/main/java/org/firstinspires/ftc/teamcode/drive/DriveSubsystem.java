@@ -11,10 +11,10 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class DriveSubsystem {
     // If you use these names when configuring your motors, you can use the auto detect method to construct
     // (NOTE: If you only have two motors only configure one left and one right - and auto detect will handle it)
-    private static final String[] BACK_LEFT_MOTOR_NAMES = { "bl", "back_left", "left_back" };
-    private static final String[] BACK_RIGHT_MOTOR_NAMES = { "br", "back_right", "right_back" };
-    private static final String[] FRONT_LEFT_MOTOR_NAMES = { "fl", "front_left", "left_front" };
-    private static final String[] FRONT_RIGHT_MOTOR_NAMES = { "fr", "front_right", "right_front" };
+    private static final String[] BACK_LEFT_MOTOR_NAMES = {"bl", "back_left", "left_back"};
+    private static final String[] BACK_RIGHT_MOTOR_NAMES = {"br", "back_right", "right_back"};
+    private static final String[] FRONT_LEFT_MOTOR_NAMES = {"fl", "front_left", "left_front"};
+    private static final String[] FRONT_RIGHT_MOTOR_NAMES = {"fr", "front_right", "right_front"};
 
     private final DcMotor leftFrontMotor;
     private final DcMotor leftBackMotor;
@@ -45,10 +45,10 @@ public class DriveSubsystem {
         if (leftFrontMotor != null && leftBackMotor != null && rightFrontMotor != null && rightBackMotor != null) {
             // TODO: Need to check - if we aren't consistent with how they are mounted/wired
             // this won't work!
-            leftFrontMotor.setDirection(DcMotor.Direction.REVERSE);
-            leftBackMotor.setDirection(DcMotor.Direction.REVERSE);
-            rightFrontMotor.setDirection(DcMotor.Direction.FORWARD);
-            rightBackMotor.setDirection(DcMotor.Direction.FORWARD);
+            leftFrontMotor.setDirection(DcMotor.Direction.FORWARD);
+            leftBackMotor.setDirection(DcMotor.Direction.FORWARD);
+            rightFrontMotor.setDirection(DcMotor.Direction.REVERSE);
+            rightBackMotor.setDirection(DcMotor.Direction.REVERSE);
             return new DriveSubsystem(leftFrontMotor, leftBackMotor, rightFrontMotor, rightBackMotor, true);
         }
 
@@ -58,13 +58,28 @@ public class DriveSubsystem {
         if (leftMotor != null && rightMotor != null) {
             // TODO: Need to check - if we aren't consistent with how they are mounted/wired
             // this won't work
-            leftMotor.setDirection(DcMotor.Direction.REVERSE);
-            rightMotor.setDirection(DcMotor.Direction.FORWARD);
+            leftMotor.setDirection(DcMotor.Direction.FORWARD);
+            rightMotor.setDirection(DcMotor.Direction.REVERSE);
             return new DriveSubsystem(leftMotor, rightMotor);
         }
 
         // Otherwise, robot needs to be reconfigured
         throw new IllegalArgumentException("Failed to find two or four motors configured as \"bl\", \"fl\" and/or \"br\", \"fr\"");
+    }
+
+    private static DcMotor findMotor(HardwareMap hardwareMap, String[] motorNames) {
+        for (String name : motorNames) {
+            try {
+                DcMotor motor = hardwareMap.get(DcMotor.class, name);
+                if (motor != null) {
+                    return motor;
+                }
+            } catch (IllegalArgumentException e) {
+                // Will try next name in list
+            }
+        }
+        // Failed to find motor by its possible names
+        return null;
     }
 
     public void drive(Gamepad gamepad) {
@@ -89,10 +104,21 @@ public class DriveSubsystem {
         driveTank(rotateRightPower, -rotateRightPower);
     }
 
+    public void setPower(double leftPower, double rightPower) {
+        setPower(leftPower, leftPower, rightPower, rightPower);
+    }
+
+    public void setPower(double leftFrontPower, double leftBackPower, double rightFrontPower, double rightBackPower) {
+        leftFrontMotor.setPower(leftFrontPower);
+        leftBackMotor.setPower(leftBackPower);
+        rightFrontMotor.setPower(rightFrontPower);
+        rightBackMotor.setPower(rightBackPower);
+    }
+
     /**
      * Tank drive with power scaling.
      *
-     * @param leftPower - Range of -1.0 to +1.0 (negative for backwards)
+     * @param leftPower  - Range of -1.0 to +1.0 (negative for backwards)
      * @param rightPower - Range of -1.0 to +1.0 (negative for backwards)
      */
     public void driveTank(double leftPower, double rightPower) {
@@ -109,7 +135,7 @@ public class DriveSubsystem {
     /**
      * Arcade drive with power scaling.
      *
-     * @param forwardPower - Range of -1.0 to +1.0 (negative for backwards)
+     * @param forwardPower     - Range of -1.0 to +1.0 (negative for backwards)
      * @param rotateRightPower - Range of -1.0 to +1.0 (negative for counter-clockwise)
      */
     public void driveArcade(double forwardPower, double rotateRightPower) {
@@ -130,9 +156,9 @@ public class DriveSubsystem {
     /**
      * Mecanum drive that allows strafing if mecanumWheels is set to true (same as driveArcade if not).
      *
-     * @param forwardPower - Range of -1.0 to +1.0 (negative for backwards)
+     * @param forwardPower     - Range of -1.0 to +1.0 (negative for backwards)
      * @param rotateRightPower - Range of -1.0 to +1.0 (negative for counter-clockwise)
-     * @param strafePower - Range of -1.0 to +1.0 (negative for strafing left)
+     * @param strafePower      - Range of -1.0 to +1.0 (negative for strafing left)
      */
     public void driveMecanum(double forwardPower, double rotateRightPower, double strafePower) {
         if (!mecanumWheels) {
@@ -166,21 +192,6 @@ public class DriveSubsystem {
      */
     public boolean hasFourMotors() {
         return (leftBackMotor != leftFrontMotor) && (rightBackMotor != rightFrontMotor);
-    }
-
-    private static DcMotor findMotor(HardwareMap hardwareMap, String[] motorNames) {
-        for (String name : motorNames) {
-            try {
-                DcMotor motor = hardwareMap.get(DcMotor.class, name);
-                if (motor != null) {
-                    return motor;
-                }
-            } catch (IllegalArgumentException e) {
-                // Will try next name in list
-            }
-        }
-        // Failed to find motor by its possible names
-        return null;
     }
 
     public void resetEncoders() {
