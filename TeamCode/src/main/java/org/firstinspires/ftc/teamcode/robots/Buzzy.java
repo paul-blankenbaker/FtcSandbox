@@ -25,11 +25,10 @@ public final class Buzzy {
 
     private final CRServo sideIntakeRight;
     private final CRServo sideIntakeLeft;
+    private final ElapsedTime feederRunTime = new ElapsedTime();
     private double currentRpm;
     private double previousRpm;
     private boolean shooterPidEnabled;
-
-    private final ElapsedTime feederRunTime = new ElapsedTime();
     private int feederRunTimeMillis;
     private int shooterInRangeCount;
     private int shooterLostLockCount;
@@ -81,6 +80,16 @@ public final class Buzzy {
             telemetry.addData("Rotation Volts", "%.3f", rotationVolts);
         }
         driveSubsystem.driveArcade(throttlePower, rotationPower);
+    }
+
+    public void setDrivePower(double leftPower, double rightPower) {
+        driveSubsystem.setPower(leftPower, rightPower);
+    }
+
+    public void setDriveVolts(double leftVolts, double rightVolts) {
+        double leftPower = voltageCalculator.voltageToPower(leftVolts);
+        double rightPower = voltageCalculator.voltageToPower(rightVolts);
+        setDrivePower(leftPower, rightPower);
     }
 
     private double gamePadStickToVolts(double axisValue, double minVolts, double scale) {
@@ -262,5 +271,13 @@ public final class Buzzy {
         }
         setShooterVolts(volts);
 
+    }
+
+    public void stop() {
+        // Stop all sub-systems
+        stopShooter();
+        intakeStop();
+        stopFeeder();
+        setDrivePower(0, 0);
     }
 }
