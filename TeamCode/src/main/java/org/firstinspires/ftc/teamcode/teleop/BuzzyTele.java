@@ -187,7 +187,7 @@ public class BuzzyTele extends OpMode {
             }
         }
         if (gamepad1.leftBumperWasReleased() && shooterMotor != null) {
-            Feeder.setPower(0.0);
+            Feeder.setPower(1.0);
 
             ;
         }
@@ -201,4 +201,6 @@ public class BuzzyTele extends OpMode {
     public void stop() {
     }
 }
+
+
 

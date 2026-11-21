@@ -71,11 +71,11 @@ public class far extends LinearOpMode {
         setShooterVolts(6.65,3000);
 
         //
-
+//6.65
         Feeder.setPower(.6);
-        setShooterVolts(6.65, 900);
-        setShooterVolts(8,900);
-        setShooterVolts(12, 900);
+        setShooterVolts(6.60, 900);
+        setShooterVolts(7.5,900);
+        setShooterVolts(10, 900);
 
         if (Feeder != null) Feeder.setPower(.95);
         setShooterVolts(0, 0);
@@ -90,7 +90,7 @@ public class far extends LinearOpMode {
         // =========================================================================
         telemetry.addData("Step 2", "Moving forward...");
         telemetry.update();
-        driveForTime(-.5, -.5, 500);
+        driveForTime(-.5, -.5, 300);
         sleep(300);
         // =========================================================================
         // STEP 3: TURN RIGHT 90 DEGREES
@@ -118,7 +118,12 @@ public class far extends LinearOpMode {
 
         telemetry.addData("Step 6", "Moving forward...");
         telemetry.update();
-        driveForTime(4, 4, 1400);
+        driveForTime(4, 4, 1130);
+        sleep(600);
+
+        telemetry.addData("Step 6", "Moving forward...");
+        telemetry.update();
+        driveForTime(-4, -4, 100);
         sleep(300);
 
 
